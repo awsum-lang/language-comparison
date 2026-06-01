@@ -1,0 +1,7 @@
+snapshot: nightly-2025-12-30
+
+# Suppress irrelevant Nix notification
+notify-if-nix-on-path: false
+
+packages:
+  - .

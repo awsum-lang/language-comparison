@@ -1,0 +1,12 @@
+{
+  "name": "recursion-and-memory-safety-typescript",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "check": "tsc --noEmit",
+    "start": "node src/main.ts"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

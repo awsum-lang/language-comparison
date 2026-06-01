@@ -1,0 +1,12 @@
+{
+  "name": "recursion-and-memory-safety-elm",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "elm make src/Main.elm --optimize --output=build/main.js",
+    "start": "npm run build && node runner.js"
+  },
+  "devDependencies": {
+    "elm": "^0.19.1-6"
+  }
+}
