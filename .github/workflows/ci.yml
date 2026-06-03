@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      # New commits pushed to the HEAD of an open PR.
+      - synchronize
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  # One job per language in the comparison. Only Awsum is wired up so far;
+  # the other languages each get their own job (with their own toolchain) later.
+  awsum:
+    name: Awsum (every target)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    env:
+      # Compiler version downloaded from awsum-lang/awsum GitHub Releases.
+      AWSUM_VERSION: 0.0.6
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # The LLVM backend pipes generated `.ll` through `clang`, which must be
+      # LLVM 15+ for opaque pointers.
+      - name: Set up LLVM 15
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-15
+          sudo ln -sf /usr/bin/clang-15 /usr/local/bin/clang
+
+      - name: Verify clang resolves to LLVM 15+
+        run: |
+          set -eu
+          clang --version
+          if clang --version | head -n1 | grep -qE 'version (1[5-9]|[2-9][0-9])\.'; then
+            echo "OK: clang is LLVM 15+"
+          else
+            echo "ERROR: clang is older than LLVM 15"
+            exit 1
+          fi
+
+      # JVM / CLR / WASM / JS runtimes. Versions match awsum's own CI, so a demo
+      # can't pass here on a runtime version the compiler's tests don't cover.
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "11"
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "9"
+
+      - name: Set up Wasmtime
+        uses: bytecodealliance/actions/wasmtime/setup@v1
+        with:
+          version: "latest"
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install awsum from GitHub Release
+        run: |
+          set -euo pipefail
+          url="https://github.com/awsum-lang/awsum/releases/download/v${AWSUM_VERSION}/awsum-${AWSUM_VERSION}-linux-x86_64-gnu.tar.gz"
+          dest="$RUNNER_TEMP/awsum"
+          mkdir -p "$dest"
+          curl -fsSL --retry 3 --retry-delay 2 -o "$dest/awsum.tar.gz" "$url"
+          tar -C "$dest" -xzf "$dest/awsum.tar.gz"
+          chmod +x "$dest/awsum"
+          echo "$dest" >> "$GITHUB_PATH"
+
+      - name: Verify awsum
+        run: awsum --version
+
+      - name: Run recursion-and-memory-safety demo on every target
+        run: |
+          set -euo pipefail
+          expected="100000"
+          for target in llvm jvm clr wasm js; do
+            echo "=== $target ==="
+            actual=$(awsum run --program-type cli -t "$target" recursion-and-memory-safety/awsum/Main.aww)
+            if [[ "$actual" != "$expected" ]]; then
+              printf 'target=%s\nexpected: %s\nactual:   %s\n' "$target" "$expected" "$actual"
+              exit 1
+            fi
+            echo "OK: $actual"
+          done
