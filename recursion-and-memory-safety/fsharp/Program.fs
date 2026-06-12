@@ -10,6 +10,19 @@
    is wrapped in `Node`, so each recursion grows the OS thread stack. ~75k
    frames in, .NET exhausts the main thread's stack (~8 MB on macOS) and
    the runtime aborts the process. Output never reaches stdout.
+
+   That crash is the configuration recorded above (`dotnet run`, Debug —
+   the .fsproj keeps `tail.` emission on even there). Release puts the
+   same program at the mercy of the JIT tier-up race: the optimizing
+   tier's `mirror` frames are small enough that 100k of them fit the 8 MB
+   stack, the unoptimized tier-0 frames are not — so under the default
+   tiered JIT the run finishes if promotion outruns the descent and aborts
+   identically if it doesn't (observed 9 finishes / 1 abort across 10
+   back-to-back runs on the same machine), while DOTNET_TieredCompilation=0
+   finishes every time. Stack use stays linear in depth in every
+   configuration: whichever way a run goes is frame-size and scheduling
+   luck, not recursion safety — a deeper tree (or Windows' smaller default
+   main stack) kills all of them again.
 *)
 module Main
 

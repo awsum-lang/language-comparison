@@ -12,4 +12,7 @@ Until `awsum 1.0.0`, the project does not follow SemVer — every release increm
 
 ### Added
 
-- CI plus standard repository scaffolding (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `LICENSE`, `NOTICE`, `.gitignore`, and a `justfile` with `setup-dev` / `format` / `test` / `fix` / `release`, backed by the DCO `prepare-commit-msg` hook). CI runs the Awsum entry of `recursion-and-memory-safety/` through every backend (`llvm`, `jvm`, `clr`, `wasm`, `js`) and asserts identical stdout. Only the Awsum entry is wired into CI / `just` so far; the other languages are added the same way over time.
+- CI plus standard repository scaffolding (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `LICENSE`, `NOTICE`, `.gitignore`, and a `justfile` with `setup-dev` / `format` / `test` / `fix` / `release`, backed by the DCO `prepare-commit-msg` hook).
+- Each language directory in `recursion-and-memory-safety/` carries an `assert-behavior.sh` asserting its recorded outcome — Awsum and Haskell print `100000`, the other ten crash. `just test` runs them all, `just test <language>` runs one.
+- CI runs one job per language against its latest stable release (Roc: latest nightly; Awsum: the lockstep-tagged release); an outcome-changing release turns the job red until the entry is re-recorded.
+- New Java and C# entries; Roc re-recorded against nightly 2026-06-12 — now compiles and dies at runtime instead (no TCO in the interpreter); the F# header records the nondeterministic Release outcome. Mechanics in the source headers.
