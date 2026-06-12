@@ -1,4 +1,4 @@
-/* This demo program builds an immutable tree of depth 100_000, mirrors it 500
+/* This demo program builds an immutable tree of depth 500_000, mirrors it 500
  * times (causing heavy allocation pressure), and displays the deepest value on
  * the left path.
  *
@@ -23,7 +23,7 @@ function main(): void {
 }
 
 function runDemo(): number {
-  return deepestLeftA(0, mirrorN(500, buildTree(100_000)));
+  return deepestLeftA(0, mirrorN(500, buildTree(500_000)));
 }
 
 function buildTree(depth: number): Tree<number> {

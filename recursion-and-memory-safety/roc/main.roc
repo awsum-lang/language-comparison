@@ -1,16 +1,13 @@
-# This demo program builds an immutable tree of depth 100_000, mirrors it 500
+# This demo program builds an immutable tree of depth 500_000, mirrors it 500
 # times (causing heavy allocation pressure), and displays the deepest value on
 # the left path.
 #
-# Roc outcome (alpha4-rolling, nightly 2026-04-10): does not compile. Roc's
-# type alias form (`:`) explicitly rejects recursion, and the nominal form
-# (`:=`) used here is syntactically valid for self-referential types but the
-# compiler stack-overflows when compiling any recursive function over such
-# a type — even at tree depth 1. None of the alpha4 builtins (Bool, Result,
-# Color) are recursive types; no working example of a recursive nominal type
-# could be found in the Roc source tree. This file is left in maximally-
-# close-to-Haskell form; the demo will run once Roc's compiler stops
-# overflowing on recursive functions over recursive nominal types.
+# Roc outcome (nightly 2026-06-12, `release-fast-f964cdab`): runtime crash —
+# "Roc crashed: This Roc program overflowed its stack memory." — already on
+# build_left's plain tail recursion. `roc main.roc` runs the program in Roc's
+# interpreter, which does no TCO of any kind, so mirror and
+# deepest_left_{a,b,c} never get a chance to run. The crash message carries
+# no location — it is the whole diagnostic.
 
 Tree(a) := [Leaf, Node(Tree(a), a, Tree(a))]
 
@@ -67,7 +64,7 @@ deepest_left_c = |last_v, tree| match tree {
 }
 
 main! = |_args| {
-    result = deepest_left_a(0, mirror_n(500, build_tree(100_000)))
+    result = deepest_left_a(0, mirror_n(500, build_tree(500_000)))
     echo!(result.to_str())
     Ok({})
 }

@@ -1,17 +1,18 @@
-/* This demo program builds an immutable tree of depth 100_000, mirrors it 500
+/* This demo program builds an immutable tree of depth 500_000, mirrors it 500
  * times (causing heavy allocation pressure), and displays the deepest value on
  * the left path.
  *
- * Rust outcome: `fatal runtime error: stack overflow, aborting` inside
- * `build_left` — the very first call from `build_tree`. Rust has no
- * guaranteed TCO; even though `build_left`'s recursive call is in tail
- * position, the Drop semantics of owned values (`acc`, the freshly built
- * `Box`es) force the compiler to keep a stack frame around to run
- * destructors after return, so LLVM cannot rewrite the call into a jump
- * even at `-C opt-level=3 -C lto=fat`. The depth-100_000 chain exhausts
- * the main thread's stack (~8 MB on macOS) before `build_tree` finishes,
- * which means `mirror`, `mirror_n` and `deepest_left_a/b/c` never even
- * get a chance to run.
+ * Rust outcome (rustc 1.93.1, `cargo run --release`): `fatal runtime
+ * error: stack overflow, aborting` inside `build_left`, before the first
+ * tree even exists. There is no tail-call elimination anywhere — the
+ * release asm on both aarch64 and x86_64 keeps every recursive fn a
+ * genuine self-call; even `build_left`'s call is in tail position only
+ * syntactically, because Drop of the owned values forces a live frame
+ * around it. Stack use is therefore linear in depth: ~96-byte frames ×
+ * depth 500_000 ≈ 48 MB on aarch64 (~56 MB on x86_64) — several times any
+ * default thread stack, so the abort does not depend on the platform's
+ * stack budget. mirror, mirror_n and deepest_left_a/b/c never get a
+ * chance to run.
  */
 
 enum Tree<A> {
@@ -24,7 +25,7 @@ fn main() {
 }
 
 fn run_demo() -> i32 {
-    deepest_left_a(0, mirror_n(500, build_tree(100_000)))
+    deepest_left_a(0, mirror_n(500, build_tree(500_000)))
 }
 
 fn build_tree(depth: i32) -> Tree<i32> {

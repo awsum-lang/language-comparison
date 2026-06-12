@@ -18,21 +18,35 @@ format:
   find . -name '*.aww' -not -path './.git/*' -print0 | xargs -0 -n1 awsum format -i
   echo "\n\n✅ Formatting completed!\n\n"
 
-# Run the Awsum comparison entry through every backend and assert identical stdout (same check CI runs)
-test:
+# Assert recorded behavior via each language's assert-behavior.sh — every language by default, one with e.g. `just test scala` (Awsum succeeds on every backend, Roc fails to compile, the rest crash at runtime)
+test lang='*':
   #!/bin/sh
   set -eu
-  expected="100000"
-  for target in llvm jvm clr wasm js; do
-    echo "=== recursion-and-memory-safety / awsum / $target ==="
-    actual=$(awsum run --program-type cli -t "$target" recursion-and-memory-safety/awsum/Main.aww)
-    if [ "$actual" != "$expected" ]; then
-      printf 'target=%s\nexpected: %s\nactual:   %s\n' "$target" "$expected" "$actual"
-      exit 1
+  matched=0
+  failed=""
+  for dir in recursion-and-memory-safety/{{ lang }}/; do
+    [ -d "$dir" ] || continue
+    matched=1
+    name=$(basename "$dir")
+    echo "=== recursion-and-memory-safety / $name ==="
+    if [ ! -x "${dir}assert-behavior.sh" ]; then
+      echo "FAIL: ${dir}assert-behavior.sh is missing or not executable"
+      failed="$failed $name"
+      continue
     fi
-    echo "OK: $actual"
+    if ! "${dir}assert-behavior.sh"; then
+      failed="$failed $name"
+    fi
   done
-  echo "\n\n✅ All backends agree.\n\n"
+  if [ "$matched" -eq 0 ]; then
+    echo "❌ No language directory matches recursion-and-memory-safety/{{ lang }}/"
+    exit 1
+  fi
+  if [ -n "$failed" ]; then
+    echo "\n\n❌ Recorded behavior not reproduced by:$failed\n\n"
+    exit 1
+  fi
+  echo "\n\n✅ Recorded behavior reproduced.\n\n"
 
 # Full precommit: format → test
 fix: format test

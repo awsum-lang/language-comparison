@@ -14,9 +14,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+# One job per language. Each installs only that language's toolchain — the
+# latest stable release (Roc: the latest nightly, its only channel; Awsum: the
+# release this repo is tagged in lockstep with) — and runs `just test
+# <language>`, the same per-language assert-behavior.sh a local `just test`
+# runs. When a new release changes an outcome, the job goes red and the entry
+# gets re-recorded.
 jobs:
-  # One job per language in the comparison. Only Awsum is wired up so far;
-  # the other languages each get their own job (with their own toolchain) later.
   awsum:
     name: Awsum (every target)
     runs-on: ubuntu-24.04
@@ -32,6 +36,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
 
       # The LLVM backend pipes generated `.ll` through `clang`, which must be
       # LLVM 15+ for opaque pointers.
@@ -89,16 +95,275 @@ jobs:
       - name: Verify awsum
         run: awsum --version
 
-      - name: Run recursion-and-memory-safety demo on every target
+      - name: Assert recorded behavior
+        run: just test awsum
+
+  csharp:
+    name: "C#"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "10"
+
+      - name: Assert recorded behavior
+        run: just test csharp
+
+  elm:
+    name: Elm
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+
+      - name: Assert recorded behavior
+        run: just test elm
+
+  fsharp:
+    name: "F#"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "10"
+
+      - name: Assert recorded behavior
+        run: just test fsharp
+
+  haskell:
+    name: Haskell
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Set up stack
+        uses: haskell-actions/setup@v2
+        with:
+          enable-stack: true
+          stack-no-global: true
+
+      # GHC for the stack.yaml snapshot lives under ~/.stack — without this
+      # cache every run re-installs it.
+      - name: Cache ~/.stack
+        uses: actions/cache@v4
+        with:
+          path: ~/.stack
+          key: stack-${{ runner.os }}-${{ hashFiles('recursion-and-memory-safety/haskell/stack.yaml', 'recursion-and-memory-safety/haskell/stack.yaml.lock', 'recursion-and-memory-safety/haskell/package.yaml') }}
+
+      - name: Assert recorded behavior
+        run: just test haskell
+
+  java:
+    name: Java
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "25"
+
+      - name: Assert recorded behavior
+        run: just test java
+
+  koka:
+    name: Koka
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Install koka 3.2.3
+        # sudo: the installer decides it can skip sudo when the exe copies into
+        # /usr/local/bin without it, but on GitHub runners /usr/local/lib is
+        # root-owned, so the later library copy fails. Run the whole thing as root.
+        run: curl -sSL https://github.com/koka-lang/koka/releases/download/v3.2.3/install.sh | sudo sh
+
+      - name: Assert recorded behavior
+        run: just test koka
+
+  purescript:
+    name: PureScript
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+
+      - name: Assert recorded behavior
+        run: just test purescript
+
+  roc:
+    name: Roc
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      # Roc has no stable release yet — nightlies are its only channel — so this
+      # tracks the latest one from roc-lang/nightlies.
+      - name: Install roc (latest nightly)
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          expected="100000"
-          for target in llvm jvm clr wasm js; do
-            echo "=== $target ==="
-            actual=$(awsum run --program-type cli -t "$target" recursion-and-memory-safety/awsum/Main.aww)
-            if [[ "$actual" != "$expected" ]]; then
-              printf 'target=%s\nexpected: %s\nactual:   %s\n' "$target" "$expected" "$actual"
-              exit 1
-            fi
-            echo "OK: $actual"
-          done
+          url=$(curl -fsSL --retry 3 --retry-delay 2 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/roc-lang/nightlies/releases/latest \
+            | jq -r '.assets[] | select(.name | test("^roc_nightly-linux_x86_64-.*\\.tar\\.gz$")) | .browser_download_url')
+          test -n "$url"
+          echo "Installing $url"
+          dest="$RUNNER_TEMP/roc"
+          mkdir -p "$dest"
+          curl -fsSL --retry 3 --retry-delay 2 -o "$dest/roc.tar.gz" "$url"
+          tar -C "$dest" --strip-components=1 -xzf "$dest/roc.tar.gz"
+          echo "$dest" >> "$GITHUB_PATH"
+
+      - name: Assert recorded behavior
+        run: just test roc
+
+  rust:
+    name: Rust
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Assert recorded behavior
+        run: just test rust
+
+  scala:
+    name: Scala 3
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "25"
+          cache: "sbt"
+
+      - name: Set up sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Assert recorded behavior
+        run: just test scala
+
+  typescript:
+    name: TypeScript
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+
+      - name: Assert recorded behavior
+        run: just test typescript

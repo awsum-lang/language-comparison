@@ -1,15 +1,17 @@
-(* This demo program builds an immutable tree of depth 100_000, mirrors it 500
+(* This demo program builds an immutable tree of depth 500_000, mirrors it 500
    times (causing heavy allocation pressure), and displays the deepest value on
    the left path.
 
    F# outcome: `Stack overflow.` process abort inside `mirror` on the very
-   first call. `Node (mirror r, v, mirror l)` is multi-child non-tail
-   self-recursion. The CLR honours F#'s `tail.` CIL prefix for tail calls
-   (so `deepestLeftA/B/C` would run as a real mutual-tail loop, unlike on
-   the JVM), but `mirror`'s two calls aren't in tail position — the result
-   is wrapped in `Node`, so each recursion grows the OS thread stack. ~75k
-   frames in, .NET exhausts the main thread's stack (~8 MB on macOS) and
-   the runtime aborts the process. Output never reaches stdout.
+   first call — in every configuration (Debug or Release, tiered JIT or
+   not). The F# compiler turns the self-tail calls of `buildLeft` /
+   `buildRight` / `mirrorN` into IL loops, and the CLR honours the `tail.`
+   prefix for the mutual `deepestLeftA/B/C` (unlike the JVM), so every tail
+   shape here is safe at any depth. But `mirror`'s two calls aren't in tail
+   position — the result is wrapped in `Node` — so each level is a real
+   stack frame, and depth 500_000 needs far more stack than any thread
+   gets, however small the optimizer makes the frames. Output never
+   reaches stdout.
 *)
 module Main
 
@@ -52,7 +54,7 @@ and deepestLeftC (lastV: 'a) (tree: Tree<'a>) : 'a =
     | Leaf -> lastV
     | Node (l, v, _) -> deepestLeftA v l // 3-node mutual tail recursion
 
-let runDemo : int = deepestLeftA 0 (mirrorN 500 (buildTree 100_000))
+let runDemo : int = deepestLeftA 0 (mirrorN 500 (buildTree 500_000))
 
 [<EntryPoint>]
 let main _ =

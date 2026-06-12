@@ -1,18 +1,15 @@
-/* This demo program builds an immutable tree of depth 100_000, mirrors it 500
+/* This demo program builds an immutable tree of depth 500_000, mirrors it 500
    times (causing heavy allocation pressure), and displays the deepest value on
    the left path.
 
    Koka outcome (3.2.3, -O2): SIGSEGV (exit code -11) inside `mirror` on the
-   first invocation against the depth-100_000 V-tree. Koka's TCO handles
-   self-recursive tail calls (`build-left`/`build-right`/`mirror-n` at depth
-   100_000 verified standalone) and *mutual* tail calls (`deepest-left-{a,b,c}`
-   at depth 100_000 verified standalone) — both unlike JVM/JS targets. But
-   `mirror` is multi-child non-tail recursion (`Node(mirror(r), v, mirror(l))`)
-   and there is no compiler transform for that shape. The recursion grows
-   the underlying C call stack; on a depth-100_000 V-tree the C stack runs
-   out somewhere between depth 50_000 and 100_000 (bisected). On the smaller
-   left-spine-only tree mirror does run to completion — both spines have to
-   be non-trivial to push it over.
+   first invocation. Koka's TCO handles self-recursive tail calls
+   (`build-left`/`build-right`/`mirror-n`) and *mutual* tail calls
+   (`deepest-left-{a,b,c}`) — both unlike JVM/JS targets. But `mirror` is
+   multi-child non-tail recursion (`Node(mirror(r), v, mirror(l))`) and there
+   is no compiler transform for that shape: each level is a real frame on the
+   underlying C call stack, which runs out long before depth 500_000 and
+   kills the process with SIGSEGV.
 
    Koka also requires every recursive function whose termination it cannot
    structurally prove (recursion on `int`, mutual recursion) to declare the
@@ -64,4 +61,4 @@ fun deepest-left-c(last-v : a, t : tree<a>) : div a
     Node(l, v, _) -> deepest-left-a(v, l) // 3-node mutual tail recursion
 
 pub fun main()
-  println(deepest-left-a(0, mirror-n(500, build-tree(100000))))
+  println(deepest-left-a(0, mirror-n(500, build-tree(500000))))
