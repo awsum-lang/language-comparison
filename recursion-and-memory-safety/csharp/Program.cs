@@ -1,24 +1,17 @@
-/* This demo program builds an immutable tree of depth 100_000, mirrors it 500
+/* This demo program builds an immutable tree of depth 500_000, mirrors it 500
  * times (causing heavy allocation pressure), and displays the deepest value on
  * the left path.
  *
  * C# outcome (.NET SDK 10.0.105, `dotnet run -c Release`): `Stack overflow.`
- * process abort inside `Mirror` on the very first call. Roslyn never emits
- * the CIL `tail.` prefix (unlike F#), and RyuJIT does not rewrite
- * BuildLeft's self-tail call into a loop either (verified separately: the
- * same BuildLeft at depth 10_000_000 dies inside BuildLeft) — every
- * recursion here, tail or not, consumes stack linear in depth. BuildLeft
- * survives this scenario's depth 100_000 only because ~100k frames happen
- * to fit in the main thread's ~8 MB stack on macOS; Mirror's first descent
- * under the default tiered JIT does not fit, and the runtime aborts.
- *
- * With tiered compilation disabled (DOTNET_TieredCompilation=0) every
- * method gets small fully-optimized frames from its first call, and this
- * exact depth squeezes through end to end — the program prints 100000.
- * The frame size of the JIT tier is the difference between crashing and
- * finishing; that is luck, not recursion safety. Stack use stays linear
- * in depth, so a deeper tree (or Windows' smaller default main stack)
- * kills the same code again.
+ * process abort inside `BuildLeft` — the plain tail-recursive accumulator —
+ * before the first tree even exists. Roslyn never emits the CIL `tail.`
+ * prefix (unlike F#), and under the default tiered JIT the first descent
+ * runs in unoptimized tier-0 frames, which exhaust the main thread's stack
+ * long before depth 500_000. The optimizing tier *can* rewrite the
+ * self-tail call into a loop — with DOTNET_TieredCompilation=0 BuildLeft
+ * survives and the crash moves to Mirror's non-tail recursion — but
+ * whether your tail call is a loop or a frame is a JIT-configuration
+ * accident, and no configuration saves the non-tail shape.
  */
 
 using System.Diagnostics;
@@ -27,7 +20,7 @@ Console.WriteLine(Demo.Run());
 
 static class Demo
 {
-    internal static int Run() => DeepestLeftA(0, MirrorN(500, BuildTree(100_000)));
+    internal static int Run() => DeepestLeftA(0, MirrorN(500, BuildTree(500_000)));
 
     static Tree<int> BuildTree(int depth)
     {

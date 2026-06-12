@@ -1,8 +1,8 @@
 #!/bin/sh
-# Expected: crashes at runtime — Roslyn emits no tail. prefix and RyuJIT does
-# not loop-rewrite the self-tail calls; BuildLeft's 100k frames happen to fit
-# the macOS main stack, Mirror's non-tail descent under the default tiered JIT
-# does not, and .NET prints "Stack overflow." and aborts before any output.
+# Expected: crashes at runtime — Roslyn emits no tail. prefix and the default
+# tiered JIT's tier-0 frames own the first descent, so even BuildLeft's plain
+# tail recursion exhausts the stack; .NET prints "Stack overflow." and aborts
+# before any output.
 set -eu
 cd "$(dirname "$0")"
 
@@ -23,9 +23,9 @@ fail() {
 [ "$status" -ne 0 ] || fail "expected non-zero exit, got 0"
 grep -qF -- 'Stack overflow.' "$err" \
   || fail "expected the CLR stack-overflow message in stderr"
-grep -qF -- 'at Demo.Mirror' "$err" \
-  || fail "expected the overflow to happen inside Mirror"
-if grep -qF -- '100000' "$out"; then
-  fail "stdout unexpectedly contains the result 100000"
+grep -qF -- 'at Demo.BuildLeft' "$err" \
+  || fail "expected the overflow to happen already inside BuildLeft"
+if grep -qF -- '500000' "$out"; then
+  fail "stdout unexpectedly contains the result 500000"
 fi
-echo "OK: runtime failure (exit $status) — Stack overflow. process abort, in Mirror"
+echo "OK: runtime failure (exit $status) — Stack overflow. process abort, already in BuildLeft"

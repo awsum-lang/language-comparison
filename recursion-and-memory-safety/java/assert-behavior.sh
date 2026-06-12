@@ -24,7 +24,7 @@ grep -qF -- 'java.lang.StackOverflowError' "$err" \
   || fail "expected java.lang.StackOverflowError in stderr"
 grep -qF -- 'at Main.buildLeft(Main.java' "$err" \
   || fail "expected the overflow to happen already inside buildLeft"
-if grep -qF -- '100000' "$out"; then
-  fail "stdout unexpectedly contains the result 100000"
+if grep -qF -- '500000' "$out"; then
+  fail "stdout unexpectedly contains the result 500000"
 fi
 echo "OK: runtime failure (exit $status) — java.lang.StackOverflowError, already in buildLeft"

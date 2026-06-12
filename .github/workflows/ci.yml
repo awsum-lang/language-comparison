@@ -233,7 +233,10 @@ jobs:
       - uses: extractions/setup-just@v3
 
       - name: Install koka 3.2.3
-        run: curl -sSL https://github.com/koka-lang/koka/releases/download/v3.2.3/install.sh | sh
+        # sudo: the installer decides it can skip sudo when the exe copies into
+        # /usr/local/bin without it, but on GitHub runners /usr/local/lib is
+        # root-owned, so the later library copy fails. Run the whole thing as root.
+        run: curl -sSL https://github.com/koka-lang/koka/releases/download/v3.2.3/install.sh | sudo sh
 
       - name: Assert recorded behavior
         run: just test koka

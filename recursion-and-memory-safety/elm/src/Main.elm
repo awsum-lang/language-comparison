@@ -1,13 +1,13 @@
 port module Main exposing (main)
 
-{-| This demo program builds an immutable tree of depth 100\_000, mirrors it 500
+{-| This demo program builds an immutable tree of depth 500\_000, mirrors it 500
 times (causing heavy allocation pressure), and displays the deepest value on
 the left path.
 
 Elm outcome: `RangeError: Maximum call stack size exceeded` inside `mirror` on
 the very first call. `Node (mirror r) v (mirror l)` is multi-child non-tail
 self-recursion — Elm's TCO emits a `while` loop only for self-recursive _tail_
-calls, so the depth-100\_000 V-tree exhausts the JS engine's call stack before
+calls, so the depth-500\_000 V-tree exhausts the JS engine's call stack before
 any output is produced. `deepestLeftA/B/C` would similarly overflow if reached,
 because Elm doesn't optimize mutual tail recursion either.
 
@@ -35,7 +35,7 @@ main =
 
 runDemo : Int
 runDemo =
-    deepestLeftA 0 (mirrorN 500 (buildTree 100000))
+    deepestLeftA 0 (mirrorN 500 (buildTree 500000))
 
 
 buildTree : Int -> Tree Int

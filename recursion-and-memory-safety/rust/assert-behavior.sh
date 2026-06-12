@@ -1,8 +1,8 @@
 #!/bin/sh
-# Expected: crashes at runtime — Rust has no guaranteed TCO (Drop keeps frames
-# alive even for tail calls), so the depth-100_000 build overflows the thread
-# stack and the runtime aborts. The abort message names no function, so only
-# the message itself is asserted.
+# Expected: crashes at runtime — Rust does no TCO (Drop keeps even tail-call
+# frames alive), and at depth 500_000 the recursion's stack peak (~48-68 MB)
+# is several times any default thread stack; the runtime aborts inside
+# build_left. See the header in src/main.rs.
 set -eu
 cd "$(dirname "$0")"
 
@@ -26,7 +26,7 @@ fail() {
 [ "$status" -ne 0 ] || fail "expected non-zero exit, got 0"
 grep -qF -- 'fatal runtime error: stack overflow' "$err" \
   || fail "expected the stack-overflow abort message in stderr"
-if grep -qF -- '100000' "$out"; then
-  fail "stdout unexpectedly contains the result 100000"
+if grep -qF -- '500000' "$out"; then
+  fail "stdout unexpectedly contains the result 500000"
 fi
 echo "OK: runtime failure (exit $status) — fatal runtime error: stack overflow"
