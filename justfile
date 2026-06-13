@@ -24,11 +24,11 @@ test lang='*':
   set -eu
   matched=0
   failed=""
-  for dir in recursion-and-memory-safety/{{ lang }}/; do
+  for dir in stack-safe-recursion/{{ lang }}/; do
     [ -d "$dir" ] || continue
     matched=1
     name=$(basename "$dir")
-    echo "=== recursion-and-memory-safety / $name ==="
+    echo "=== stack-safe-recursion / $name ==="
     if [ ! -x "${dir}assert-behavior.sh" ]; then
       echo "FAIL: ${dir}assert-behavior.sh is missing or not executable"
       failed="$failed $name"
@@ -39,7 +39,7 @@ test lang='*':
     fi
   done
   if [ "$matched" -eq 0 ]; then
-    echo "❌ No language directory matches recursion-and-memory-safety/{{ lang }}/"
+    echo "❌ No language directory matches stack-safe-recursion/{{ lang }}/"
     exit 1
   fi
   if [ -n "$failed" ]; then

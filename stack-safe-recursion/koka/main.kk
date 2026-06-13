@@ -1,0 +1,71 @@
+/* This program builds an immutable tree of depth `treeDepth`, mirrors it
+   `mirrorCount` times, and prints the deepest value on the left path. Both are
+   read from argv; the recorded run (assert-behavior.sh) passes `5000000 1`.
+
+   Koka outcome (3.2.3, -O2): SIGSEGV (exit code -11) inside `mirror` on the
+   first invocation. Koka's TCO handles self-recursive tail calls
+   (`build-left`/`build-right`/`mirror-n`) and *mutual* tail calls
+   (`deepest-left-{a,b,c}`) — both unlike JVM/JS targets. But `mirror` is
+   multi-child non-tail recursion (`Node(mirror(r), v, mirror(l))`) and there
+   is no compiler transform for that shape: each level is a real frame on the
+   underlying C call stack, which runs out long before depth 5_000_000 and
+   kills the process with SIGSEGV.
+
+   Koka also requires every recursive function whose termination it cannot
+   structurally prove (recursion on `int`, mutual recursion) to declare the
+   `div` (divergence) effect in its return type — that's why this file
+   reads `: div tree<int>` and `: div a` where Haskell just writes the
+   result type.
+*/
+module main
+
+import std/os/env
+
+type tree<a>
+  Leaf
+  Node(left : tree<a>, value : a, right : tree<a>)
+
+fun build-left(depth : int, value : int, acc : tree<int>) : div tree<int>
+  if depth == 0 then acc
+  else build-left(depth - 1, value - 1, Node(acc, value, Leaf)) // tail recursion
+
+fun build-right(depth : int, value : int, acc : tree<int>) : div tree<int>
+  if depth == 0 then acc
+  else build-right(depth - 1, value - 1, Node(Leaf, value, acc)) // tail recursion
+
+fun build-tree(depth : int) : div tree<int>
+  val l = build-left(depth, depth, Leaf)
+  val r = build-right(depth, depth, Leaf)
+  Node(l, 0, r)
+
+fun mirror(t : tree<a>) : tree<a>
+  match t
+    Leaf -> Leaf
+    Node(l, v, r) -> Node(mirror(r), v, mirror(l)) // multi-child non-tail recursion
+
+fun mirror-n(times : int, t : tree<a>) : div tree<a>
+  if times == 0 then t
+  else mirror-n(times - 1, mirror(t)) // tail recursion
+
+fun deepest-left-a(last-v : a, t : tree<a>) : div a
+  match t
+    Leaf -> last-v
+    Node(l, v, _) -> deepest-left-b(v, l) // 3-node mutual tail recursion
+
+fun deepest-left-b(last-v : a, t : tree<a>) : div a
+  match t
+    Leaf -> last-v
+    Node(l, v, _) -> deepest-left-c(v, l) // 3-node mutual tail recursion
+
+fun deepest-left-c(last-v : a, t : tree<a>) : div a
+  match t
+    Leaf -> last-v
+    Node(l, v, _) -> deepest-left-a(v, l) // 3-node mutual tail recursion
+
+pub fun main()
+  match get-args()
+    Cons(depth-str, Cons(mirror-str, _)) ->
+      val tree-depth = depth-str.parse-int.default(0)
+      val mirror-count = mirror-str.parse-int.default(0)
+      println(deepest-left-a(0, mirror-n(mirror-count, build-tree(tree-depth))))
+    _ -> println("usage: <treeDepth> <mirrorCount>")
