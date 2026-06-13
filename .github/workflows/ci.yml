@@ -141,6 +141,27 @@ jobs:
         with:
           node-version: "lts/*"
 
+      # elm make fetches packages from package.elm-lang.org on every run, and a
+      # single transient fetch can fail. Cache them across runs and retry the
+      # build so the assert step never touches the network.
+      - name: Cache elm
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elm
+            recursion-and-memory-safety/elm/elm-stuff
+          key: elm-${{ runner.os }}-${{ hashFiles('recursion-and-memory-safety/elm/elm.json') }}
+
+      - name: Install & build (retried — elm's package fetch is network-flaky)
+        working-directory: recursion-and-memory-safety/elm
+        run: |
+          npm install --no-audit --no-fund --loglevel=error
+          n=0
+          until npm run build; do
+            n=$((n + 1)); [ "$n" -ge 3 ] && { echo "build failed after $n attempts"; exit 1; }
+            echo "build attempt $n failed; retrying in 10s"; sleep 10
+          done
+
       - name: Assert recorded behavior
         run: just test elm
 
@@ -283,6 +304,27 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "lts/*"
+
+      # spago fetches the PureScript package set from the registry on every run,
+      # and a single transient fetch can fail ("request failed"). Cache it across
+      # runs and retry the build so the assert step never touches the network.
+      - name: Cache spago
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/spago
+            recursion-and-memory-safety/purescript/.spago
+          key: spago-${{ runner.os }}-${{ hashFiles('recursion-and-memory-safety/purescript/spago.lock') }}
+
+      - name: Install & build (retried — spago's registry fetch is network-flaky)
+        working-directory: recursion-and-memory-safety/purescript
+        run: |
+          npm install --no-audit --no-fund --loglevel=error
+          n=0
+          until npm run build; do
+            n=$((n + 1)); [ "$n" -ge 3 ] && { echo "build failed after $n attempts"; exit 1; }
+            echo "build attempt $n failed; retrying in 10s"; sleep 10
+          done
 
       - name: Assert recorded behavior
         run: just test purescript
