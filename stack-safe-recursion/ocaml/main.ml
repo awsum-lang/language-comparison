@@ -1,8 +1,8 @@
 (* This program builds an immutable tree of depth `treeDepth`, mirrors it
    `mirrorCount` times, and prints the deepest value on the left path. Both are
-   read from argv; the recorded run (assert-behavior.sh) passes `35000000 1`.
+   read from argv; the recorded run (assert-behavior.sh) passes `40000000 1`.
 
-   OCaml outcome (ocaml 5.4.1, native via ocamlopt, `./main 35000000 1`):
+   OCaml outcome (ocaml 5.4.1, native via ocamlopt, `./main 40000000 1`):
    `Fatal error: exception Stack_overflow`, no output. OCaml does TCO for self
    and mutual tail calls (build_left / build_right / mirror_n /
    deepest_left_{a,b,c} run in constant stack), and OCaml 5 runs the non-tail
@@ -10,11 +10,13 @@
    5_000_000, where every fixed-stack language (Java, Rust, …) died in the
    tens-to-hundreds of thousands. But growable is not unbounded: like Go's
    goroutine stack, it postpones the limit rather than removing it. `mirror`
-   recurses to the tree depth, and at 35_000_000 it exhausts even the growable
+   recurses to the tree depth, and deep enough it exhausts even the growable
    stack and raises Stack_overflow. So OCaml is not stack-safe — its ceiling is
-   just higher (measured here: survives 30M, aborts by 35M). awsum and Haskell,
-   bounded by memory rather than stack, keep going at this depth. (Pre-5.0 OCaml
-   ran on the fixed C stack and overflowed far shallower.) *)
+   just higher, and platform-dependent: this macOS box aborts by 35M, the Linux
+   CI runner clears that, so the recorded run uses 40_000_000 to cross the
+   higher one. awsum and Haskell, bounded by memory rather than stack, keep
+   going at this depth. (Pre-5.0 OCaml ran on the fixed C stack and overflowed
+   far shallower.) *)
 
 type tree = Leaf | Node of tree * int * tree
 
