@@ -24,7 +24,7 @@ grep -qF -- 'java.lang.StackOverflowError' "$err" \
   || fail "expected java.lang.StackOverflowError in stderr"
 grep -qF -- '.mirror(Main.scala' "$err" \
   || fail "expected the overflow to happen inside mirror"
-if grep -qF -- '200000' "$out"; then
-  fail "stdout unexpectedly contains the result 200000"
+if grep -qF -- '300000' "$out"; then
+  fail "stdout unexpectedly contains the result 300000"
 fi
 echo "OK: runtime failure (exit $status) — java.lang.StackOverflowError in mirror (sbt still reports success)"

@@ -35,7 +35,7 @@ main =
 
 runDemo : Int
 runDemo =
-    deepestLeftA 0 (mirrorN 500 (buildTree 200000))
+    deepestLeftA 0 (mirrorN 500 (buildTree 300000))
 
 
 buildTree : Int -> Tree Int

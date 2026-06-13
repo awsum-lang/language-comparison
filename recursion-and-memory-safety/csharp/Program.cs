@@ -1,4 +1,4 @@
-/* This demo program builds an immutable tree of depth 200_000, mirrors it 500
+/* This demo program builds an immutable tree of depth 300_000, mirrors it 500
  * times (causing heavy allocation pressure), and displays the deepest value on
  * the left path.
  *
@@ -7,7 +7,7 @@
  * before the first tree even exists. Roslyn never emits the CIL `tail.`
  * prefix (unlike F#), and under the default tiered JIT the first descent
  * runs in unoptimized tier-0 frames, which exhaust the main thread's stack
- * long before depth 200_000. The optimizing tier *can* rewrite the
+ * long before depth 300_000. The optimizing tier *can* rewrite the
  * self-tail call into a loop — with DOTNET_TieredCompilation=0 BuildLeft
  * survives and the crash moves to Mirror's non-tail recursion — but
  * whether your tail call is a loop or a frame is a JIT-configuration
@@ -20,7 +20,7 @@ Console.WriteLine(Demo.Run());
 
 static class Demo
 {
-    internal static int Run() => DeepestLeftA(0, MirrorN(500, BuildTree(200_000)));
+    internal static int Run() => DeepestLeftA(0, MirrorN(500, BuildTree(300_000)));
 
     static Tree<int> BuildTree(int depth)
     {

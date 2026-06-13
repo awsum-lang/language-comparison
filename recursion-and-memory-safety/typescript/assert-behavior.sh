@@ -25,7 +25,7 @@ grep -qF -- 'RangeError: Maximum call stack size exceeded' "$err" \
   || fail "expected the stack-overflow RangeError in stderr"
 grep -qF -- 'at buildLeft (' "$err" \
   || fail "expected the overflow to happen already inside buildLeft"
-if grep -qF -- '200000' "$out"; then
-  fail "stdout unexpectedly contains the result 200000"
+if grep -qF -- '300000' "$out"; then
+  fail "stdout unexpectedly contains the result 300000"
 fi
 echo "OK: runtime failure (exit $status) — RangeError: Maximum call stack size exceeded, already in buildLeft"

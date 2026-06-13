@@ -1,4 +1,4 @@
-/* This demo program builds an immutable tree of depth 200_000, mirrors it 500
+/* This demo program builds an immutable tree of depth 300_000, mirrors it 500
  * times (causing heavy allocation pressure), and displays the deepest value on
  * the left path.
  *
@@ -6,7 +6,7 @@
  * inside `buildLeft` on the very first call. Neither javac nor HotSpot
  * performs tail-call elimination of any kind — there isn't even Scala's
  * compile-time self-tail-to-loop rewrite — so a plain tail-recursive
- * accumulator runs as a chain of real stack frames. The depth-200_000 left
+ * accumulator runs as a chain of real stack frames. The depth-300_000 left
  * spine exhausts the JVM's default thread stack long before the first tree
  * is built; mirror, mirrorN and deepestLeftA/B/C never get a chance to run.
  * The only mitigation is a bigger -Xss, which moves the cliff without
@@ -19,7 +19,7 @@ public class Main {
     }
 
     static int runDemo() {
-        return deepestLeftA(0, mirrorN(500, buildTree(200_000)));
+        return deepestLeftA(0, mirrorN(500, buildTree(300_000)));
     }
 
     static Tree<Integer> buildTree(int depth) {

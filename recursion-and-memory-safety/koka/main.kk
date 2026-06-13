@@ -1,4 +1,4 @@
-/* This demo program builds an immutable tree of depth 200_000, mirrors it 500
+/* This demo program builds an immutable tree of depth 300_000, mirrors it 500
    times (causing heavy allocation pressure), and displays the deepest value on
    the left path.
 
@@ -8,7 +8,7 @@
    (`deepest-left-{a,b,c}`) — both unlike JVM/JS targets. But `mirror` is
    multi-child non-tail recursion (`Node(mirror(r), v, mirror(l))`) and there
    is no compiler transform for that shape: each level is a real frame on the
-   underlying C call stack, which runs out long before depth 200_000 and
+   underlying C call stack, which runs out long before depth 300_000 and
    kills the process with SIGSEGV.
 
    Koka also requires every recursive function whose termination it cannot
@@ -61,4 +61,4 @@ fun deepest-left-c(last-v : a, t : tree<a>) : div a
     Node(l, v, _) -> deepest-left-a(v, l) // 3-node mutual tail recursion
 
 pub fun main()
-  println(deepest-left-a(0, mirror-n(500, build-tree(200000))))
+  println(deepest-left-a(0, mirror-n(500, build-tree(300000))))

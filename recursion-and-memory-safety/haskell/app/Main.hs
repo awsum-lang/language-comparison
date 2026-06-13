@@ -1,8 +1,8 @@
-{- This demo program builds an immutable tree of depth 200_000, mirrors it 500
+{- This demo program builds an immutable tree of depth 300_000, mirrors it 500
    times (causing heavy allocation pressure), and displays the deepest value on
    the left path.
 
-   Haskell outcome: prints 200000 — all recursion shapes are stack-safe under
+   Haskell outcome: prints 300000 — all recursion shapes are stack-safe under
    GHC; allocation pressure handled by GHC's GC. Arithmetic correctness is out
    of scope — `Int32` silently wraps on under/overflow in Haskell. -}
 module Main (main) where
@@ -15,7 +15,7 @@ main :: IO ()
 main = print runDemo
 
 runDemo :: Int32
-runDemo = deepestLeftA 0 (mirrorN 500 (buildTree 200_000))
+runDemo = deepestLeftA 0 (mirrorN 500 (buildTree 300_000))
 
 buildTree :: Int32 -> Tree Int32
 buildTree depth =
