@@ -433,3 +433,28 @@ jobs:
 
       - name: Assert recorded behavior
         run: just test typescript
+
+  zig:
+    name: Zig
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      # Zig is pre-1.0 with high API churn; this program targets 0.16's IO model
+      # (process.Init main, the post-Writergate stdout API). Pin it and bump
+      # together with re-recording the entry.
+      - name: Set up Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.16.0
+
+      - name: Assert recorded behavior
+        run: just test zig
