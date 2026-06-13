@@ -1,11 +1,11 @@
-{-| This demo program builds an immutable tree of depth 300_000, mirrors it 500
+{-| This demo program builds an immutable tree of depth 5_000_000, mirrors it 500
 times (causing heavy allocation pressure), and displays the deepest value on
 the left path.
 
 PureScript outcome: `RangeError: Maximum call stack size exceeded` inside
 `mirror` on the very first call. `Node (mirror r) v (mirror l)` is multi-child
 non-tail self-recursion — `purs` emits a JS `while` loop only for
-self-recursive *tail* calls, so the depth-300_000 V-tree exhausts the JS
+self-recursive *tail* calls, so the depth-5_000_000 V-tree exhausts the JS
 engine's call stack before any output is produced. `deepestLeftA/B/C` would
 similarly overflow if reached, because PureScript doesn't optimize mutual tail
 recursion either.
@@ -23,7 +23,7 @@ main :: Effect Unit
 main = log (show runDemo)
 
 runDemo :: Int
-runDemo = deepestLeftA 0 (mirrorN 500 (buildTree 300000))
+runDemo = deepestLeftA 0 (mirrorN 500 (buildTree 5000000))
 
 buildTree :: Int -> Tree Int
 buildTree depth =

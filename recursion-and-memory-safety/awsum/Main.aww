@@ -1,4 +1,4 @@
-{- This demo program builds an immutable tree of depth 300_000,
+{- This demo program builds an immutable tree of depth 5_000_000,
    mirrors it 500 times (causing heavy allocation pressure),
    and displays the deepest value on the left path.
 
@@ -19,7 +19,7 @@ main = case runDemo of
 
 runDemo : Either UnderflowError Int32
 runDemo = do
-  tree <- buildTree 300_000
+  tree <- buildTree 5_000_000
   mirrored <- mirrorN 500 tree
   Right (deepestLeftA 0 mirrored)
 

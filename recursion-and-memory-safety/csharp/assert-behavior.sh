@@ -25,7 +25,7 @@ fail() {
 grep -qF -- 'Stack overflow.' "$err" \
   || fail "expected the CLR stack-overflow message in stderr"
 # Crash site (Demo.BuildLeft or Demo.Mirror) is a tiered-JIT race — not asserted.
-if grep -qF -- '300000' "$out"; then
-  fail "stdout unexpectedly contains the result 300000"
+if grep -qF -- '5000000' "$out"; then
+  fail "stdout unexpectedly contains the result 5000000"
 fi
 echo "OK: runtime failure (exit $status) — Stack overflow. process abort"

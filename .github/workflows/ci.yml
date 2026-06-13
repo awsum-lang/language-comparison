@@ -24,7 +24,9 @@ jobs:
   awsum:
     name: Awsum (every target)
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    # CI installs the *released* awsum (workstation GC); at depth 5_000_000 its
+    # CLR run is slow, so the budget is generous. A Server-GC release cuts it.
+    timeout-minutes: 120
 
     env:
       # Compiler version downloaded from awsum-lang/awsum GitHub Releases.
@@ -163,6 +165,28 @@ jobs:
 
       - name: Assert recorded behavior
         run: just test fsharp
+
+  go:
+    name: Go
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Assert recorded behavior
+        run: just test go
 
   haskell:
     name: Haskell

@@ -22,7 +22,7 @@ fail() {
 [ "$status" -ne 0 ] || fail "expected non-zero exit, got 0"
 grep -qF -- 'Roc crashed: This Roc program overflowed its stack memory' "$err" \
   || fail "expected the runtime stack-overflow message in stderr"
-if grep -qF -- '300000' "$out"; then
-  fail "stdout unexpectedly contains the result 300000"
+if grep -qF -- '5000000' "$out"; then
+  fail "stdout unexpectedly contains the result 5000000"
 fi
 echo "OK: runtime failure (exit $status) — Roc crashed: This Roc program overflowed its stack memory (no TCO in the interpreter)"

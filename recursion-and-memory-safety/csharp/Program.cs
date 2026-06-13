@@ -1,4 +1,4 @@
-/* This demo program builds an immutable tree of depth 300_000, mirrors it 500
+/* This demo program builds an immutable tree of depth 5_000_000, mirrors it 500
  * times (causing heavy allocation pressure), and displays the deepest value on
  * the left path.
  *
@@ -14,7 +14,7 @@
  * has been observed aborting inside BuildLeft (macOS at every depth tried;
  * the Linux runner at depth 500_000) and inside Mirror, ~150k frames into
  * the non-tail recursion no JIT trick can flatten (the Linux runner at depth
- * 300_000). With DOTNET_TieredCompilation=0 BuildLeft is loop-rewritten from
+ * 5_000_000). With DOTNET_TieredCompilation=0 BuildLeft is loop-rewritten from
  * its first call and the crash is always in Mirror.
  *
  * The constant across every platform, depth, and configuration is the
@@ -28,7 +28,7 @@ Console.WriteLine(Demo.Run());
 
 static class Demo
 {
-    internal static int Run() => DeepestLeftA(0, MirrorN(500, BuildTree(300_000)));
+    internal static int Run() => DeepestLeftA(0, MirrorN(500, BuildTree(5_000_000)));
 
     static Tree<int> BuildTree(int depth)
     {

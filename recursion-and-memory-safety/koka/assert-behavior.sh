@@ -25,7 +25,7 @@ grep -qF -- 'command failed (exit code -11)' "$err" \
   || fail "expected the SIGSEGV report (exit code -11) in stderr"
 grep -qF -- 'main__main' "$err" \
   || fail "expected the failing command to be the compiled binary"
-if grep -qF -- '300000' "$out"; then
-  fail "stdout unexpectedly contains the result 300000"
+if grep -qF -- '5000000' "$out"; then
+  fail "stdout unexpectedly contains the result 5000000"
 fi
 echo "OK: runtime failure (exit $status) — compiled binary segfaulted: command failed (exit code -11)"

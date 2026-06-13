@@ -23,7 +23,7 @@ fail() {
 grep -qF -- 'Stack overflow.' "$err" \
   || fail "expected the CLR stack-overflow message in stderr"
 # Crash site (mirror) is not asserted — only the stack-overflow signature.
-if grep -qF -- '300000' "$out"; then
-  fail "stdout unexpectedly contains the result 300000"
+if grep -qF -- '5000000' "$out"; then
+  fail "stdout unexpectedly contains the result 5000000"
 fi
 echo "OK: runtime failure (exit $status) — Stack overflow. process abort"

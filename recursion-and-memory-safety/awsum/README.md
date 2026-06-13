@@ -16,6 +16,8 @@ awsum build --program-type cli -t jvm  -o AwsumMain.class Main.aww && java -Dsun
 
 ## CLR (.NET)
 
+The build emits `AwsumMain.runtimeconfig.json` alongside the dll; `dotnet` reads it automatically, so keep the two together and no extra flags are needed.
+
 ```sh
 awsum build --program-type cli -t clr  -o AwsumMain.dll   Main.aww && dotnet AwsumMain.dll
 ```

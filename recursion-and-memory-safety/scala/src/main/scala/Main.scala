@@ -1,4 +1,4 @@
-/* This demo program builds an immutable tree of depth 300_000, mirrors it 500
+/* This demo program builds an immutable tree of depth 5_000_000, mirrors it 500
  * times (causing heavy allocation pressure), and displays the deepest value on
  * the left path.
  *
@@ -8,7 +8,7 @@
  * *tail* calls into a `while` loop, but neither it nor the JVM has anything
  * for non-tail recursion — `@tailrec` is only a compile-time assertion that
  * a function IS tail-recursive, not what enables the optimization. The
- * depth-300_000 V-tree exhausts the JVM thread's default stack (~512 KB →
+ * depth-5_000_000 V-tree exhausts the JVM thread's default stack (~512 KB →
  * a few thousand frames) before any output is produced. `deepestLeftA/B/C`
  * would similarly overflow if reached, because Scala doesn't optimize mutual
  * tail recursion (annotating those with `@tailrec` would be a compile error,
@@ -23,7 +23,7 @@ enum Tree[+A]:
 
 @main def main(): Unit = println(runDemo)
 
-def runDemo: Int = deepestLeftA(0, mirrorN(500, buildTree(300_000)))
+def runDemo: Int = deepestLeftA(0, mirrorN(500, buildTree(5_000_000)))
 
 def buildTree(depth: Int): Tree[Int] =
   val l = buildLeft(depth, depth, Tree.Leaf)

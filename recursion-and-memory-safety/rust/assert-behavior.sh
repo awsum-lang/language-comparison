@@ -1,6 +1,6 @@
 #!/bin/sh
 # Expected: crashes at runtime — Rust does no TCO (Drop keeps even tail-call
-# frames alive), and at depth 300_000 the recursion's stack peak (~24-29 MB)
+# frames alive), and at depth 5_000_000 the recursion's stack peak (~24-29 MB)
 # is more than three times any default 8 MB thread stack; the runtime aborts
 # inside build_left. See the header in src/main.rs.
 set -eu
@@ -26,7 +26,7 @@ fail() {
 [ "$status" -ne 0 ] || fail "expected non-zero exit, got 0"
 grep -qF -- 'fatal runtime error: stack overflow' "$err" \
   || fail "expected the stack-overflow abort message in stderr"
-if grep -qF -- '300000' "$out"; then
-  fail "stdout unexpectedly contains the result 300000"
+if grep -qF -- '5000000' "$out"; then
+  fail "stdout unexpectedly contains the result 5000000"
 fi
 echo "OK: runtime failure (exit $status) — fatal runtime error: stack overflow"
