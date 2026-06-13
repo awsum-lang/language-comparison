@@ -24,7 +24,7 @@ grep -qF -- 'Stack overflow.' "$err" \
   || fail "expected the CLR stack-overflow message in stderr"
 grep -qF -- 'at Main.mirror' "$err" \
   || fail "expected the overflow to happen inside mirror"
-if grep -qF -- '500000' "$out"; then
-  fail "stdout unexpectedly contains the result 500000"
+if grep -qF -- '200000' "$out"; then
+  fail "stdout unexpectedly contains the result 200000"
 fi
 echo "OK: runtime failure (exit $status) — Stack overflow. process abort, in mirror"

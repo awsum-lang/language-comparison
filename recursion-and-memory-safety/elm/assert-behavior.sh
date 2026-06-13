@@ -26,7 +26,7 @@ grep -qF -- 'RangeError: Maximum call stack size exceeded' "$err" \
   || fail "expected the stack-overflow RangeError in stderr"
 grep -qF -- 'Main$mirror' "$err" \
   || fail "expected the overflow to happen inside mirror"
-if grep -qF -- '500000' "$out"; then
-  fail "stdout unexpectedly contains the result 500000"
+if grep -qF -- '200000' "$out"; then
+  fail "stdout unexpectedly contains the result 200000"
 fi
 echo "OK: runtime failure (exit $status) — RangeError: Maximum call stack size exceeded, in mirror"

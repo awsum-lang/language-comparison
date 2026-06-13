@@ -1,4 +1,4 @@
-/* This demo program builds an immutable tree of depth 500_000, mirrors it 500
+/* This demo program builds an immutable tree of depth 200_000, mirrors it 500
  * times (causing heavy allocation pressure), and displays the deepest value on
  * the left path.
  *
@@ -9,10 +9,10 @@
  * genuine self-call; even `build_left`'s call is in tail position only
  * syntactically, because Drop of the owned values forces a live frame
  * around it. Stack use is therefore linear in depth: ~96-byte frames ×
- * depth 500_000 ≈ 48 MB on aarch64 (~56 MB on x86_64) — several times any
- * default thread stack, so the abort does not depend on the platform's
- * stack budget. mirror, mirror_n and deepest_left_a/b/c never get a
- * chance to run.
+ * depth 200_000 ≈ 19 MB on aarch64 (~16 MB on x86_64) — more than twice
+ * any default 8 MB main-thread stack, so the abort does not depend on the
+ * platform's stack budget. mirror, mirror_n and deepest_left_a/b/c never
+ * get a chance to run.
  */
 
 enum Tree<A> {
@@ -25,7 +25,7 @@ fn main() {
 }
 
 fn run_demo() -> i32 {
-    deepest_left_a(0, mirror_n(500, build_tree(500_000)))
+    deepest_left_a(0, mirror_n(500, build_tree(200_000)))
 }
 
 fn build_tree(depth: i32) -> Tree<i32> {

@@ -25,7 +25,7 @@ grep -qF -- 'Stack overflow.' "$err" \
   || fail "expected the CLR stack-overflow message in stderr"
 grep -qF -- 'at Demo.BuildLeft' "$err" \
   || fail "expected the overflow to happen already inside BuildLeft"
-if grep -qF -- '500000' "$out"; then
-  fail "stdout unexpectedly contains the result 500000"
+if grep -qF -- '200000' "$out"; then
+  fail "stdout unexpectedly contains the result 200000"
 fi
 echo "OK: runtime failure (exit $status) — Stack overflow. process abort, already in BuildLeft"

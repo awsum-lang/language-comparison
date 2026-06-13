@@ -1,4 +1,4 @@
-# This demo program builds an immutable tree of depth 500_000, mirrors it 500
+# This demo program builds an immutable tree of depth 200_000, mirrors it 500
 # times (causing heavy allocation pressure), and displays the deepest value on
 # the left path.
 #
@@ -64,7 +64,7 @@ deepest_left_c = |last_v, tree| match tree {
 }
 
 main! = |_args| {
-    result = deepest_left_a(0, mirror_n(500, build_tree(500_000)))
+    result = deepest_left_a(0, mirror_n(500, build_tree(200_000)))
     echo!(result.to_str())
     Ok({})
 }

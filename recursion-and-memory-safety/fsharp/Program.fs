@@ -1,4 +1,4 @@
-(* This demo program builds an immutable tree of depth 500_000, mirrors it 500
+(* This demo program builds an immutable tree of depth 200_000, mirrors it 500
    times (causing heavy allocation pressure), and displays the deepest value on
    the left path.
 
@@ -9,7 +9,7 @@
    prefix for the mutual `deepestLeftA/B/C` (unlike the JVM), so every tail
    shape here is safe at any depth. But `mirror`'s two calls aren't in tail
    position — the result is wrapped in `Node` — so each level is a real
-   stack frame, and depth 500_000 needs far more stack than any thread
+   stack frame, and depth 200_000 needs far more stack than any thread
    gets, however small the optimizer makes the frames. Output never
    reaches stdout.
 *)
@@ -54,7 +54,7 @@ and deepestLeftC (lastV: 'a) (tree: Tree<'a>) : 'a =
     | Leaf -> lastV
     | Node (l, v, _) -> deepestLeftA v l // 3-node mutual tail recursion
 
-let runDemo : int = deepestLeftA 0 (mirrorN 500 (buildTree 500_000))
+let runDemo : int = deepestLeftA 0 (mirrorN 500 (buildTree 200_000))
 
 [<EntryPoint>]
 let main _ =
