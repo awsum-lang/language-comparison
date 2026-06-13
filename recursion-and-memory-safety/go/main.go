@@ -5,16 +5,14 @@
  * Go outcome (go 1.26.4, `go run .`): Go does no tail-call elimination (the
  * team declined it on purpose), so every recursion here — tail or not —
  * consumes a real stack frame. A goroutine's stack grows on demand only up to
- * a default ~1 GB cap (runtime/debug.SetMaxStack), so survival is depth vs.
- * that cap — and the cap bites at a depth that depends on frame size, hence on
- * architecture: an isolated build_left aborts around 4.8M frames on arm64
- * (macOS, ~112-byte frames) and around 6.1M on x86_64 (Linux, ~88-byte frames)
- * with
+ * a default ~1 GB cap (runtime/debug.SetMaxStack). At depth 5_000_000 the
+ * build_left recursion blows past that cap before the first tree is even
+ * built, and the program aborts with
  *   runtime: goroutine stack exceeds 1000000000-byte limit
- * Depth 5_000_000 straddles those thresholds: Go aborts on macOS (over the
- * cliff) and survives on Linux (just under it, printing 5000000). Recursion
- * depth is bounded by available stack, not handled by the compiler — so a
- * deeper tree crashes Go on every platform.
+ * — confirmed on both arm64 (macOS) and x86_64 (the Linux CI runner). The
+ * exact cliff depth depends on per-frame stack size — architecture, plus the
+ * generic Tree[int] instantiation — but it is finite: recursion depth here is
+ * bounded by available stack, not handled by the compiler.
  */
 
 package main

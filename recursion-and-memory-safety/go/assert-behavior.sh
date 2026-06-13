@@ -1,10 +1,9 @@
 #!/bin/sh
 # Expected: Go FALLS — `go run .` aborts with the goroutine-stack-cap overflow.
-# Go does no TCO; its goroutine stack grows on demand but hits a ~1 GB cap,
-# which bites near ~4.8M frames on arm64 (macOS) and ~6.1M on x86_64 (Linux).
-# Depth must clear the larger (Linux) threshold for the fall to reproduce on
-# the CI runner: GREEN = Go fell, RED = Go still survived (raise the depth).
-# See the header in main.go.
+# Go does no TCO; its goroutine stack grows on demand but hits a ~1 GB cap, and
+# at depth 5_000_000 it blows past that cap on both arm64 (macOS) and x86_64
+# (the Linux CI runner). Asserts the stack-overflow signature, not the crash
+# site. See the header in main.go.
 set -eu
 cd "$(dirname "$0")"
 
