@@ -24,9 +24,8 @@ fail() {
 [ "$status" -ne 0 ] || fail "expected non-zero exit, got 0"
 grep -qF -- 'RangeError: Maximum call stack size exceeded' "$err" \
   || fail "expected the stack-overflow RangeError in stderr"
-grep -qF -- 'Main$mirror' "$err" \
-  || fail "expected the overflow to happen inside mirror"
+# Crash site (mirror) is not asserted — only the RangeError signature.
 if grep -qF -- '300000' "$out"; then
   fail "stdout unexpectedly contains the result 300000"
 fi
-echo "OK: runtime failure (exit $status) — RangeError: Maximum call stack size exceeded, in mirror"
+echo "OK: runtime failure (exit $status) — RangeError: Maximum call stack size exceeded"

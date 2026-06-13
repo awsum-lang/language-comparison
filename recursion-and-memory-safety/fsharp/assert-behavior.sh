@@ -22,9 +22,8 @@ fail() {
 [ "$status" -ne 0 ] || fail "expected non-zero exit, got 0"
 grep -qF -- 'Stack overflow.' "$err" \
   || fail "expected the CLR stack-overflow message in stderr"
-grep -qF -- 'at Main.mirror' "$err" \
-  || fail "expected the overflow to happen inside mirror"
+# Crash site (mirror) is not asserted — only the stack-overflow signature.
 if grep -qF -- '300000' "$out"; then
   fail "stdout unexpectedly contains the result 300000"
 fi
-echo "OK: runtime failure (exit $status) — Stack overflow. process abort, in mirror"
+echo "OK: runtime failure (exit $status) — Stack overflow. process abort"

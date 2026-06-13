@@ -3,15 +3,23 @@
  * the left path.
  *
  * C# outcome (.NET SDK 10.0.105, `dotnet run -c Release`): `Stack overflow.`
- * process abort inside `BuildLeft` — the plain tail-recursive accumulator —
- * before the first tree even exists. Roslyn never emits the CIL `tail.`
- * prefix (unlike F#), and under the default tiered JIT the first descent
- * runs in unoptimized tier-0 frames, which exhaust the main thread's stack
- * long before depth 300_000. The optimizing tier *can* rewrite the
- * self-tail call into a loop — with DOTNET_TieredCompilation=0 BuildLeft
- * survives and the crash moves to Mirror's non-tail recursion — but
- * whether your tail call is a loop or a frame is a JIT-configuration
- * accident, and no configuration saves the non-tail shape.
+ * process abort, no output. Roslyn never emits the CIL `tail.` prefix
+ * (unlike F#, whose compiler turns self-tail calls into IL loops), so
+ * nothing here is guaranteed stack-safe.
+ *
+ * Under the default tiered JIT, BuildLeft's plain tail recursion is a race:
+ * its tier-0 frames pile up linearly on the stack while the optimizing tier
+ * tries to rewrite the self-call into a loop. Which side wins — and so which
+ * function the process dies in — shifts with platform, depth, and run. It
+ * has been observed aborting inside BuildLeft (macOS at every depth tried;
+ * the Linux runner at depth 500_000) and inside Mirror, ~150k frames into
+ * the non-tail recursion no JIT trick can flatten (the Linux runner at depth
+ * 300_000). With DOTNET_TieredCompilation=0 BuildLeft is loop-rewritten from
+ * its first call and the crash is always in Mirror.
+ *
+ * The constant across every platform, depth, and configuration is the
+ * `Stack overflow.` abort before any output — which is what the entry
+ * asserts, not the function it happens to die in.
  */
 
 using System.Diagnostics;

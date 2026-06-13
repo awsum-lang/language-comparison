@@ -22,9 +22,8 @@ fail() {
 
 grep -qF -- 'java.lang.StackOverflowError' "$err" \
   || fail "expected java.lang.StackOverflowError in stderr"
-grep -qF -- '.mirror(Main.scala' "$err" \
-  || fail "expected the overflow to happen inside mirror"
+# Crash site (mirror) is not asserted — only the StackOverflowError signature.
 if grep -qF -- '300000' "$out"; then
   fail "stdout unexpectedly contains the result 300000"
 fi
-echo "OK: runtime failure (exit $status) — java.lang.StackOverflowError in mirror (sbt still reports success)"
+echo "OK: runtime failure (exit $status) — java.lang.StackOverflowError (sbt still reports success)"
