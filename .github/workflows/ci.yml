@@ -303,8 +303,10 @@ jobs:
         with:
           ocaml-compiler: "5"
 
+      # `ocamlopt` lives in the opam switch, not on the default PATH for a plain
+      # `run:` step — `opam exec --` runs the assert inside the opam environment.
       - name: Assert recorded behavior
-        run: just test ocaml
+        run: opam exec -- just test ocaml
 
   purescript:
     name: PureScript
