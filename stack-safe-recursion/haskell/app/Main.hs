@@ -1,9 +1,11 @@
 {- This program builds an immutable tree of depth `treeDepth`, mirrors it
    `mirrorCount` times, and prints the deepest value on the left path. Both are
-   read from argv; the recorded run (assert-behavior.sh) passes `5000000 1`.
+   read from argv; the recorded run (assert-behavior.sh) passes `50000000 1`.
 
-   Haskell outcome: prints 5000000 — all recursion shapes are stack-safe under
-   GHC. Arithmetic correctness is out of scope — `Int32` silently wraps on
+   Haskell outcome: prints 50000000 — every recursion shape is stack-safe under
+   GHC (TCO + laziness), bounded by memory, not stack, so it clears 50_000_000:
+   past where OCaml's growable stack has already given out (~45M), it just keeps
+   going. Arithmetic correctness is out of scope — `Int32` silently wraps on
    under/overflow in Haskell. -}
 module Main (main) where
 

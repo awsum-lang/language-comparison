@@ -1,5 +1,5 @@
 # stack-safe-recursion — Haskell
 
 ```sh
-stack run -- 5000000 1
+stack run -- 50000000 1
 ```
