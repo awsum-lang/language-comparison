@@ -1,7 +1,9 @@
 {- This program builds an immutable tree of depth `treeDepth`, mirrors it
    `mirrorCount` times, and prints the deepest value on the left path. Both are
    read from argv (IO.Args.getArgs); the recorded run (assert-behavior.sh)
-   passes `5000000 1` to every target.
+   passes a per-target depth (LLVM/JVM/CLR `50000000`; WASM `19000000`, capped
+   by its ~4 GB linear memory; JS `11000000`, capped by the V8 heap) — each
+   bounded by memory, never the stack.
 
    Every recursion shape is stack-safe on every target, including JVM and JS
    where native cross-method TCO doesn't exist.
