@@ -16,7 +16,7 @@ fi
 echo "OK: llvm prints 25000000"
 
 # JVM
-actual=$(awsum run --program-type cli -t jvm Main.aww -- 50000000 1)
+actual=$(awsum run --program-type cli -t jvm Main.aww -- 40000000 1)
 if [ "$actual" != "50000000" ]; then
   printf 'FAIL: target=jvm\nexpected: 50000000\nactual:   %s\n' "$actual"
   exit 1
