@@ -3,8 +3,9 @@
 # read from argv; the recorded run (assert-behavior.sh) passes `5000000 1`.
 #
 # Roc outcome (nightly 2026-06-12, `release-fast-f964cdab`, `roc main.roc -- 5000000 1`):
-# runtime crash — "Roc crashed: This Roc program overflowed its stack memory." —
-# already on build_left's plain tail recursion. `roc main.roc` runs the program in Roc's
+# runtime crash — "This Roc program overflowed its stack memory" (newer nightlies
+# reword the wrapper around it) — already on build_left's plain tail recursion.
+# `roc main.roc` runs the program in Roc's
 # interpreter, which does no TCO of any kind, so mirror and
 # deepest_left_{a,b,c} never get a chance to run. The crash message carries
 # no location — it is the whole diagnostic.
