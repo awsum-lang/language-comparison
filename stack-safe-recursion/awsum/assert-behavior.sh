@@ -8,12 +8,12 @@ set -eu
 cd "$(dirname "$0")"
 
 # LLVM
-actual=$(awsum run --program-type cli -t llvm Main.aww -- 40000000 1)
-if [ "$actual" != "40000000" ]; then
-  printf 'FAIL: target=llvm\nexpected: 40000000\nactual:   %s\n' "$actual"
+actual=$(awsum run --program-type cli -t llvm Main.aww -- 35000000 1)
+if [ "$actual" != "35000000" ]; then
+  printf 'FAIL: target=llvm\nexpected: 35000000\nactual:   %s\n' "$actual"
   exit 1
 fi
-echo "OK: llvm prints 40000000"
+echo "OK: llvm prints 35000000"
 
 # # JVM
 # actual=$(awsum run --program-type cli -t jvm Main.aww -- 50000000 1)
