@@ -18,7 +18,7 @@
    going at this depth. (Pre-5.0 OCaml ran on the fixed C stack and overflowed
    far shallower.) *)
 
-type tree = Leaf | Node of tree * int * tree
+type 'a tree = Leaf | Node of 'a tree * 'a * 'a tree
 
 let rec build_left depth value acc =
   if depth = 0 then acc
