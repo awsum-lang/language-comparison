@@ -1,5 +1,5 @@
 #!/bin/sh
-# Expected: crashes at 40_000_000 with `Fatal error: exception Stack_overflow`.
+# Expected: crashes at 45_000_000 with `Fatal error: exception Stack_overflow`.
 # OCaml 5's growable stack carries the non-tail `mirror` far past the fixed-stack
 # languages (it clears 5_000_000), but the stack is bounded, not infinite: deep
 # enough, `mirror` exhausts it and raises Stack_overflow. So OCaml is not
@@ -16,7 +16,7 @@ out=$(mktemp); err=$(mktemp)
 trap 'rm -f "$out" "$err"' EXIT
 
 status=0
-./main 40000000 1 >"$out" 2>"$err" || status=$?
+./main 45000000 1 >"$out" 2>"$err" || status=$?
 
 fail() {
   echo "FAIL: $1"
@@ -26,10 +26,10 @@ fail() {
   exit 1
 }
 
-[ "$status" -ne 0 ] || fail "OCaml survived 40_000_000 — growable-stack ceiling is higher here; raise the depth"
+[ "$status" -ne 0 ] || fail "OCaml survived 45_000_000 — growable-stack ceiling is higher here; raise the depth"
 grep -qF -- 'Stack_overflow' "$err" \
   || fail "expected the OCaml Stack_overflow message in stderr"
-if grep -qF -- '40000000' "$out"; then
-  fail "stdout unexpectedly contains the result 40000000 (OCaml survived)"
+if grep -qF -- '45000000' "$out"; then
+  fail "stdout unexpectedly contains the result 45000000 (OCaml survived)"
 fi
 echo "OK: runtime failure (exit $status) — Fatal error: exception Stack_overflow (growable stack is bounded, not infinite)"
