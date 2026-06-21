@@ -1,0 +1,48 @@
+name: stack-safe-recursion
+version: 0.1.0
+license: Apache-2.0
+
+language: GHC2024
+
+dependencies:
+  - base >= 4.7 && < 5
+
+ghc-options:
+  - -O2
+    # Strip absolute build paths from compiled output so two builds in
+    # different working directories produce byte-identical binaries.
+  - -fhide-source-paths
+    # Enable all possible warnings (Werror only in CI, not here)
+  - -Weverything
+    # Complains about imported functions
+  - -Wno-all-missed-specialisations
+  - -Wno-missed-specialisations
+    # Requires signatures for all local definitions
+  - -Wno-missing-local-signatures
+    # Requires to mark unsafe modules as unsafe
+  - -Wno-unsafe
+    # Requires kind signature for every newtype
+  - -Wno-missing-kind-signatures
+    # A lot of modules are still not "safe haskell"
+  - -Wno-missing-safe-haskell-mode
+    # Requires import lists for all record fields and all value constructors
+  - -Wno-missing-import-lists
+    # We deliberately use the standard Prelude (no Relude here)
+  - -Wno-implicit-prelude
+    # Default representational role is fine for a single-file demo
+  - -Wno-missing-role-annotations
+
+executables:
+  stack-safe-recursion:
+    main: Main.hs
+    source-dirs: app
+    # Explicitly empty `other-modules` suppresses hpack's two default behaviours:
+    # (a) auto-discovering modules in source-dirs, and (b) auto-adding
+    # Paths_<pkg> as autogen. Without this suppression, Cabal auto-generates
+    # Paths_<pkg>.hs with absolute build-dir paths baked in, breaking
+    # byte-reproducibility.
+    other-modules: []
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N

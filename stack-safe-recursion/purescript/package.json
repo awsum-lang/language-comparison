@@ -1,0 +1,13 @@
+{
+  "name": "stack-safe-recursion-purescript",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "spago build",
+    "start": "spago run"
+  },
+  "devDependencies": {
+    "purescript": "^0.15.16",
+    "spago": "^1.0.4"
+  }
+}

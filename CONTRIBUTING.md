@@ -4,7 +4,7 @@ Thanks for your interest in contributing.
 
 ## Development setup
 
-Each language in a comparison is built and run with its own toolchain — see the `README.md` in each subdirectory (for example, [recursion-and-memory-safety/awsum/README.md](recursion-and-memory-safety/awsum/README.md)).
+Each language in a comparison is built and run with its own toolchain — see the `README.md` in each subdirectory (for example, [stack-safe-recursion/awsum/README.md](stack-safe-recursion/awsum/README.md)).
 
 The Awsum entry is additionally wired into `just` and CI. Install the [Awsum compiler](https://github.com/awsum-lang/awsum) plus the target runtimes, then from a checkout:
 
