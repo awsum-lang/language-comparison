@@ -19,10 +19,9 @@ type Tree a = Leaf | Node (Tree a) a (Tree a)
 type NoArg = NoArg
 
 main : IO Never Unit
-main =
-  IO.Args.getArgs
-    |> andThenIO runWithArgs
-    |> handleErrorIO handleArgsError
+main = IO.Args.getArgs
+  |> andThenIO runWithArgs
+  |> handleErrorIO handleArgsError
 
 handleArgsError : (StringTooLong | UnpairedUtf16Surrogate) -> IO Never Unit
 handleArgsError e = case e of
