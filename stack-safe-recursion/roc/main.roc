@@ -1,14 +1,12 @@
 # This program builds an immutable tree of depth `treeDepth`, mirrors it
 # `mirrorCount` times, and prints the deepest value on the left path. Both are
-# read from argv; the recorded run (assert-behavior.sh) passes `5000000 1`.
+# read from argv; the recorded run (assert-behavior.sh) passes `100000 1`.
 #
-# Roc outcome (nightly 2026-06-12, `release-fast-f964cdab`, `roc main.roc -- 5000000 1`):
-# runtime crash — "This Roc program overflowed its stack memory" (newer nightlies
-# reword the wrapper around it) — already on build_left's plain tail recursion.
-# `roc main.roc` runs the program in Roc's
-# interpreter, which does no TCO of any kind, so mirror and
-# deepest_left_{a,b,c} never get a chance to run. The crash message carries
-# no location — it is the whole diagnostic.
+# Roc outcome (`roc main.roc -- 100000 1`): runtime crash — "This Roc program
+# overflowed its stack memory" (newer nightlies reword the wrapper around it).
+# `roc main.roc` runs the program in Roc's interpreter; it does not make this
+# deep recursion stack-safe, so the program overflows at runtime. The crash
+# message carries no location — it is the whole diagnostic.
 
 Tree(a) := [Leaf, Node(Tree(a), a, Tree(a))]
 
