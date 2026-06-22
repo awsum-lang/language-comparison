@@ -2,8 +2,9 @@
 # `mirrorCount` times, and prints the deepest value on the left path. Both are
 # read from argv; the recorded run (assert-behavior.sh) passes `100000 1`.
 #
-# Roc outcome (`roc main.roc -- 100000 1`): runtime crash — "This Roc program
-# overflowed its stack memory" (newer nightlies reword the wrapper around it).
+# Roc outcome (`roc main.roc -- 100000 1`): runtime crash — its stderr contains
+# "overflowed its stack memory" (nightlies reword the text around it: "This Roc
+# program overflowed…", "Roc application overflowed…").
 # `roc main.roc` runs the program in Roc's interpreter; it does not make this
 # deep recursion stack-safe, so the program overflows at runtime. The crash
 # message carries no location — it is the whole diagnostic.
