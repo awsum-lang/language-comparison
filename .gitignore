@@ -1,2 +1,8 @@
 .DS_Store
-/.idea/
+
+# Editor files: IntelliJ project settings (in any directory), Emacs backups,
+# autosaves and edit locks
+.idea/
+*~
+\#*\#
+.#*

@@ -15,3 +15,7 @@ The comparison runs against the **latest stable release** of each language (for 
 ```
 
 Topic names describe the **scenario**, not the behavior. Different languages do different things in the same scenario — silent wrap, panic, typed error, correct result — and recording them side by side is the point. Each outcome is executable, not just prose: `assert-behavior.sh` re-runs the program and asserts what was recorded — the success output, the compile-time failure, or a substring of the exact runtime error. `just test` runs every assertion in the repo.
+
+## AI use
+
+This comparison is developed with substantial usage of generative AI.
