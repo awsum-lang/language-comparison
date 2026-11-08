@@ -28,16 +28,16 @@ jobs:
 
     env:
       # Compiler version downloaded from awsum-lang/awsum GitHub Releases.
-      AWSUM_VERSION: 0.0.7
+      AWSUM_VERSION: 0.0.8
 
     defaults:
       run:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       # The LLVM backend pipes generated `.ll` through `clang`, which must be
       # LLVM 15+ for opaque pointers.
@@ -61,25 +61,25 @@ jobs:
       # JVM / CLR / WASM / JS runtimes. Versions match awsum's own CI, so a demo
       # can't pass here on a runtime version the compiler's tests don't cover.
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: "temurin"
-          java-version: "11"
+          java-version: "25.0.5+8"
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: "9"
+          dotnet-version: "10.0.403"
 
       - name: Set up Wasmtime
-        uses: bytecodealliance/actions/wasmtime/setup@v1
+        uses: bytecodealliance/actions/wasmtime/setup@9152e710e9f7182e4c29ad218e4f335a7b203613 # v1.1.3
         with:
-          version: "latest"
+          version: "v50.0.1"
 
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
+          node-version: "26.13.0"
 
       - name: Install awsum from GitHub Release
         run: |
@@ -108,12 +108,12 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: "10"
 
@@ -130,12 +130,12 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "lts/*"
 
@@ -143,7 +143,7 @@ jobs:
       # single transient fetch can fail. Cache them across runs and retry the
       # build so the assert step never touches the network.
       - name: Cache elm
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.elm
@@ -173,12 +173,12 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: "10"
 
@@ -195,12 +195,12 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: stable
 
@@ -217,12 +217,12 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Set up stack
-        uses: haskell-actions/setup@v2
+        uses: haskell-actions/setup@0f8e8c99d88aeb3fbfd523f1ef2c6f762d10d64d # v2.12.1
         with:
           enable-stack: true
           stack-no-global: true
@@ -230,7 +230,7 @@ jobs:
       # GHC for the stack.yaml snapshot lives under ~/.stack — without this
       # cache every run re-installs it.
       - name: Cache ~/.stack
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.stack
           key: stack-${{ runner.os }}-${{ hashFiles('stack-safe-recursion/haskell/stack.yaml', 'stack-safe-recursion/haskell/stack.yaml.lock', 'stack-safe-recursion/haskell/package.yaml') }}
@@ -248,12 +248,12 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: "temurin"
           java-version: "25"
@@ -271,9 +271,9 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Install koka 3.2.3
         # sudo: the installer decides it can skip sudo when the exe copies into
@@ -294,12 +294,12 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Set up OCaml
-        uses: ocaml/setup-ocaml@v3
+        uses: ocaml/setup-ocaml@ff66428f72b64472e749b22e0ad4dded4b2ddca6 # v3.9.1
         with:
           ocaml-compiler: "5"
 
@@ -318,12 +318,12 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "lts/*"
 
@@ -331,7 +331,7 @@ jobs:
       # and a single transient fetch can fail ("request failed"). Cache it across
       # runs and retry the build so the assert step never touches the network.
       - name: Cache spago
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/spago
@@ -361,9 +361,9 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       # Roc has no stable release yet — nightlies are its only channel — so this
       # tracks the latest one from roc-lang/nightlies.
@@ -397,12 +397,14 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
 
       - name: Assert recorded behavior
         run: just test rust
@@ -417,19 +419,19 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: "temurin"
           java-version: "25"
           cache: "sbt"
 
       - name: Set up sbt
-        uses: sbt/setup-sbt@v1
+        uses: sbt/setup-sbt@b113b960ba361e87e08ce02a390d51871b7ee459 # v1.5.13
 
       - name: Assert recorded behavior
         run: just test scala
@@ -444,12 +446,12 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "lts/*"
 
@@ -466,15 +468,15 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4
 
       # Zig is pre-1.0 with high API churn; this program targets 0.16's IO model
       # (process.Init main, the post-Writergate stdout API). Pin it and bump
       # together with re-recording the entry.
       - name: Set up Zig
-        uses: mlugg/setup-zig@v2
+        uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29 # v2.2.1
         with:
           version: 0.16.0
 

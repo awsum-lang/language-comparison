@@ -1,6 +1,6 @@
 #!/bin/sh
-# Expected: crashes at runtime — `roc main.roc` interprets the program, and this
-# deep recursion overflows the interpreter's stack.
+# Expected: crashes at runtime — `roc main.roc` uses the default dev backend,
+# and this deep recursion overflows the stack.
 # Asserts the stable core of the overflow message: nightlies reword everything
 # around it ("Roc crashed: This Roc program overflowed…", "Roc application
 # crashed with this message: …", "Roc application overflowed…"), so match only
@@ -12,7 +12,7 @@ out=$(mktemp); err=$(mktemp)
 trap 'rm -f "$out" "$err"' EXIT
 
 status=0
-roc main.roc -- 100000 1 >"$out" 2>"$err" || status=$?
+roc main.roc 5000000 1 >"$out" 2>"$err" || status=$?
 
 fail() {
   echo "FAIL: $1"
@@ -25,7 +25,7 @@ fail() {
 [ "$status" -ne 0 ] || fail "expected non-zero exit, got 0"
 grep -qF -- 'overflowed its stack memory' "$err" \
   || fail "expected the runtime stack-overflow message in stderr"
-if grep -qF -- '100000' "$out"; then
-  fail "stdout unexpectedly contains the result 100000"
+if grep -qF -- '5000000' "$out"; then
+  fail "stdout unexpectedly contains the result 5000000"
 fi
 echo "OK: runtime failure (exit $status) — overflowed its stack memory"

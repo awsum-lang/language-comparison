@@ -1,12 +1,12 @@
 # This program builds an immutable tree of depth `treeDepth`, mirrors it
 # `mirrorCount` times, and prints the deepest value on the left path. Both are
-# read from argv; the recorded run (assert-behavior.sh) passes `100000 1`.
+# read from argv; the recorded run (assert-behavior.sh) passes `5000000 1`.
 #
-# Roc outcome (`roc main.roc -- 100000 1`): runtime crash — its stderr contains
+# Roc outcome (`roc main.roc 5000000 1`): runtime crash — its stderr contains
 # "overflowed its stack memory" (nightlies reword the text around it: "This Roc
 # program overflowed…", "Roc application overflowed…").
-# `roc main.roc` runs the program in Roc's interpreter; it does not make this
-# deep recursion stack-safe, so the program overflows at runtime. The crash
+# `roc main.roc` uses Roc's default dev backend; it does not make this deep
+# recursion stack-safe, so the program overflows at runtime. The crash
 # message carries no location — it is the whole diagnostic.
 
 Tree(a) := [Leaf, Node(Tree(a), a, Tree(a))]
