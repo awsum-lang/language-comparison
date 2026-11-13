@@ -16,7 +16,7 @@ just fix       # format + test
 
 `just test` requires the same five backend runtimes that the Awsum compiler's CI uses — LLVM 15 (`clang`), JDK 25, .NET 10, `wasmtime`, Node 26. See [.github/workflows/ci.yml](.github/workflows/ci.yml) for the matching install scripts.
 
-The Awsum job and every GitHub Action follow Awsum's [platform version policy](https://github.com/awsum-lang/awsum/blob/main/docs/platform-version-policy.md): a release is used only once it has been out for 7 days, and every version is pinned exactly. The other languages' toolchains are what the comparison measures, so their jobs track each language's latest release on purpose.
+The Awsum job and every GitHub Action follow the Awsum [platform version policy](https://github.com/awsum-lang/awsum/blob/main/docs/platform-version-policy.md): a release is used only once it has been out for 7 days, and every version is pinned exactly. The other languages' toolchains are what the comparison measures, so their jobs track each language's latest release on purpose.
 
 ## Developer Certificate of Origin
 
